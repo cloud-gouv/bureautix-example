@@ -1,3 +1,4 @@
 netboot/boot-response.json
 netboot/snowboot
 .pre-commit*
+result*
