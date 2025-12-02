@@ -25,10 +25,16 @@ let
 
   defaultEdition = "acmecorp-bureautix";
 
+  pkgs' = pkgs.extend (
+    final: prev: {
+      securixThemes = final.callPackage ./themes { };
+    }
+  );
+
   securix = import securixSrc {
     edition = defaultEdition;
     defaultTags = [ defaultEdition ];
-    inherit pkgs;
+    pkgs = pkgs';
     # We override to use our own Disko which contains a patch for the office_v1 layout.
     sourcesOverrides =
       sources':
