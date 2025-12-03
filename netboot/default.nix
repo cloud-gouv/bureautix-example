@@ -51,6 +51,7 @@ in
 
   shell = pkgs.mkShell {
     packages = [
+      pkgs.dnsmasq
       pkgs.harmonia
       pkgs.caddy
       pkgs.hivemind

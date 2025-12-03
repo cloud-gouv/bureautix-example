@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-pixiecore: pixiecore api --ipxe-efi64 $(nix-build -A ipxe)/ipxe--ecm--axge.efi --dhcp-no-bind http://localhost:8000/pixiecore
+dhcp: dnsmasq --no-daemon --interface=vmboot --dhcp-range=192.168.50.1,192.168.50.100,12h --port=0 --log-dhcp
+pixiecore: pixiecore api --dhcp-no-bind http://localhost:8000/pixiecore
 http-server: caddy run
 nix-binary-cache: harmonia
