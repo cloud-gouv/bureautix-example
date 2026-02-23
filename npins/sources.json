@@ -66,11 +66,11 @@
         "owner": "cloud-gouv",
         "repo": "securix"
       },
-      "branch": "main",
+      "branch": "teams-inventory-v2",
       "submodules": false,
-      "revision": "f7b4cd1535886edb6760e0b7c3d17fef4b806cf6",
-      "url": "https://github.com/cloud-gouv/securix/archive/f7b4cd1535886edb6760e0b7c3d17fef4b806cf6.tar.gz",
-      "hash": "14mym9npvc58ra6hcncdzrqax2yf4afqiql9a1mc90lr2b137gfy"
+      "revision": "14e49c4847f7f5daa0881d0d597ebef5cf40122a",
+      "url": "https://github.com/cloud-gouv/securix/archive/14e49c4847f7f5daa0881d0d597ebef5cf40122a.tar.gz",
+      "hash": "1rfxh640aiaf150my0s4ppaqjqijhvwf7wn32jgkk4fqwr5sm7h2"
     },
     "snowboot": {
       "type": "Git",
