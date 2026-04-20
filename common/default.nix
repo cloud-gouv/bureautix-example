@@ -37,6 +37,8 @@
 
     # Laptop: power optimizations, etc.
     ./laptop.nix
+    # Fleet observability (logs + metrics shipping)
+    ./o11y.nix
   ];
 
   securix.self.machine = {
