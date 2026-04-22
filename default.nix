@@ -1,4 +1,5 @@
 # SPDX-FileCopyrightText: 2025 Ryan Lahfa <ryan.lahfa@numerique.gouv.fr>
+# SPDX-FileContributor: 2026 Mattias Kockum <mattias@kockum.net>
 #
 # SPDX-License-Identifier: MIT
 
@@ -123,93 +124,22 @@ let
       )
     ) (builtins.readDir ./workflows);
   };
+
+  moduleArgs = {
+    inherit
+      sources
+      pkgs
+      lib
+      securix
+      defaultSystem
+      netbootIP
+      ;
+  };
+
+  installers = import ./installers moduleArgs;
 in
 rec {
-  # Generic installer for any laptops.
-  # There's a netboot installer, see `netboot/README.md` for documentation.
-  # There's an USB generic installer that will install a default system.
-
-  net-installer = securix.lib.buildNetbootInstaller {
-    # This is the system model that is used for the partitioning.
-    # We only want to extract the formatting and mounting script, we should not take MORE than that with us.
-    baseModules = defaultSystem.partitioningModules ++ [
-      {
-        securix = {
-          self.mainDisk = "/dev/nvme0n1";
-          filesystems.layout = "office_v1";
-        };
-      }
-    ];
-    extraInstallerModules = [
-      "${sources.snowboot}/nix-modules/fetch-system-from-binary-cache.nix"
-      {
-        boot = {
-          initrd = {
-            availableKernelModules = [
-              "cdc_ncm"
-              "virtio-pci"
-              "virtio-net"
-            ];
-            systemd.enable = true;
-          };
-          snowboot.fetch-system-from-binary-cache.enable = true;
-        };
-        # Use mDNS here instead.
-        nix.settings.substituters = lib.mkForce [ "http://${netbootIP}:8000?trusted=1" ];
-        fileSystems."/" = {
-          fsType = "tmpfs";
-          device = "tmpfs";
-          options = [ "mode=0755" ];
-        };
-
-        networking.hostName = "netboot-installer-v1";
-        environment.systemPackages = [
-          (pkgs.writers.writePython3Bin "nixos-installer" {
-            flakeIgnore = [
-              "E501"
-              "E302"
-              "E305"
-              "E124"
-              "E265"
-              "E303"
-            ];
-          } ./pkgs/nixos-installer/installer.py)
-        ];
-      }
-    ];
-    # NOTE: `unsafeDiscardStringContext` is used here to avoid to bring with us the full default system toplevel.
-    # On a netboot system, you live in RAM and if your default system contains a bunch of things, you can saturate the RAM during the installation.
-    # This is not a problem on a USB stick.
-    installScript = ''
-      nixos-installer --toplevel-registry-uri http://${netbootIP}:8000/snowboot/toplevel/toplevels --default-toplevel ${builtins.unsafeDiscardStringContext defaultSystem.system.toplevel}
-    '';
-  };
-
-  usb-installer = securix.lib.buildUSBInstallerISO {
-    # We can include the whole default system in the USB stick to accelerate installation.
-    inherit (defaultSystem) modules;
-
-    extraInstallerModules = [
-      {
-        networking.hostName = "generic-installer-v1";
-        environment.systemPackages = [
-          (pkgs.writers.writePython3Bin "nixos-installer" {
-            flakeIgnore = [
-              "E501"
-              "E302"
-              "E305"
-              "E124"
-              "E265"
-              "E303"
-            ];
-          } ./pkgs/nixos-installer/installer.py)
-        ];
-      }
-    ];
-    installScript = ''
-      nixos-installer --default-toplevel ${defaultSystem.system.toplevel}
-    '';
-  };
+  inherit (installers) net-installer usb-installer;
 
   # { <serial number1>, <serial number2>, ... }
   terminals = mapAttrs (
