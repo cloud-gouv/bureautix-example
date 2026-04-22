@@ -32,28 +32,8 @@ let
       };
   };
 
-  # Default system closure
-  # This is the system that gets installed by default automatically without any user customization.
-  defaultSystem = securix.lib.mkTerminal {
-    name = "default";
-    edition = defaultEdition;
-    userSpecificModule = { };
-    vpnProfiles = { };
-    modules = [
-      ./common
-      {
-        securix = {
-          self = {
-            mainDisk = "/dev/nvme0n1";
-            machine = {
-              hardwareSKU = "x280";
-              serialNumber = "000000";
-            };
-          };
-          graphical-interface.variant = "kde";
-        };
-      }
-    ];
+  defaultSystem = import ./lib/default-system.nix {
+    inherit securix defaultEdition;
   };
 
   moduleArgs = {
