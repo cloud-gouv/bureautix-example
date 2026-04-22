@@ -13,9 +13,6 @@
   netbootIP ? "169.254.1.1",
 }:
 let
-  inherit (lib)
-    filter
-    ;
 
   defaultEdition = "acmecorp-bureautix";
 
@@ -51,7 +48,7 @@ let
   registry = import ./registry moduleArgs;
   dev = import ./dev moduleArgs;
 in
-rec {
+{
   inherit (installers) net-installer usb-installer;
   inherit (registry) terminals toplevelRegistry;
   inherit (dev) shell;
