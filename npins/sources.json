@@ -4,14 +4,14 @@
       "type": "Git",
       "repository": {
         "type": "GitHub",
-        "owner": "raitobezarius",
+        "owner": "nix-community",
         "repo": "disko"
       },
-      "branch": "fido2-disko",
+      "branch": "main",
       "submodules": false,
-      "revision": "d63769e7b9b88e4e53d04f663b3348b73eb1c4f7",
-      "url": "https://github.com/raitobezarius/disko/archive/d63769e7b9b88e4e53d04f663b3348b73eb1c4f7.tar.gz",
-      "hash": "0wkfyqv47z3dn2s6qnad8miybn6r3pn2dv30dcq2hk6x00484j27"
+      "revision": "32f4236bfc141ae930b5ba2fb604f561fed5219d",
+      "url": "https://github.com/nix-community/disko/archive/32f4236bfc141ae930b5ba2fb604f561fed5219d.tar.gz",
+      "hash": "0hh9llhkl29nrmdgifc9m1dqqbn7zgf060mcwn1n21lvk2kl4bw0"
     },
     "git-hooks": {
       "type": "Git",
