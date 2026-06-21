@@ -1,4 +1,5 @@
 # SPDX-FileCopyrightText: 2025 Ryan Lahfa <ryan.lahfa@numerique.gouv.fr>
+# SPDX-FileContributor: 2026 Mattias Kockum <mattias@kockum.net>
 #
 # SPDX-License-Identifier: MIT
 
@@ -12,16 +13,6 @@
   netbootIP ? "169.254.1.1",
 }:
 let
-  inherit (lib)
-    concatStringsSep
-    filter
-    attrNames
-    mapAttrs'
-    isFunction
-    nameValuePair
-    removeSuffix
-    mapAttrs
-    ;
 
   defaultEdition = "acmecorp-bureautix";
 
@@ -38,220 +29,27 @@ let
       };
   };
 
-  # Default system closure
-  # This is the system that gets installed by default automatically without any user customization.
-  defaultSystem = securix.lib.mkTerminal {
-    name = "default";
-    edition = defaultEdition;
-    userSpecificModule = { };
-    vpnProfiles = { };
-    modules = [
-      ./common
-      {
-        securix = {
-          self = {
-            mainDisk = "/dev/nvme0n1";
-            machine = {
-              hardwareSKU = "x280";
-              serialNumber = "000000";
-            };
-          };
-          graphical-interface.variant = "kde";
-        };
-      }
-    ];
+  defaultSystem = import ./lib/default-system.nix {
+    inherit securix defaultEdition;
   };
 
-  # CI workflows
-  nix-reuse = ((import sources.nix-reuse { }).override { input = _: { nixpkgs = pkgs; }; }).output;
-  nix-actions = import sources.nix-actions { inherit pkgs; };
-
-  git-checks = (import sources.git-hooks).run {
-    src = ./.;
-
-    hooks = {
-      statix = {
-        enable = true;
-        stages = [ "pre-push" ];
-        settings.ignore = [
-          "**/npins/*"
-        ];
-      };
-
-      nixfmt-rfc-style = {
-        enable = true;
-        stages = [ "pre-push" ];
-        package = pkgs.nixfmt-rfc-style;
-      };
-
-      reuse = nix-reuse.gitHook { };
-    };
+  moduleArgs = {
+    inherit
+      sources
+      pkgs
+      lib
+      securix
+      defaultSystem
+      netbootIP
+      ;
   };
 
-  reuse = nix-reuse.run {
-    defaultLicense = "MIT";
-    defaultCopyright = "Sécurix project authors";
-
-    downloadLicenses = true;
-    generatedPaths = [
-      "**/.envrc"
-      ".gitignore"
-      "REUSE.toml"
-      "shell.nix"
-      "treefmt.toml"
-
-      ".github/workflows/*"
-      "**/npins/*"
-    ];
-  };
-
-  workflows = nix-actions.install {
-    src = ./.;
-    platform = "github";
-
-    workflows = mapAttrs' (
-      name: _:
-      nameValuePair (removeSuffix ".nix" name) (
-        let
-          w = import ./workflows/${name};
-          args = {
-            inherit nix-actions;
-            inherit (pkgs) lib;
-          };
-        in
-        if (isFunction w) then (w args) else w
-      )
-    ) (builtins.readDir ./workflows);
-  };
+  installers = import ./installers moduleArgs;
+  registry = import ./registry moduleArgs;
+  dev = import ./dev moduleArgs;
 in
-rec {
-  # Generic installer for any laptops.
-  # There's a netboot installer, see `netboot/README.md` for documentation.
-  # There's an USB generic installer that will install a default system.
-
-  net-installer = securix.lib.buildNetbootInstaller {
-    # This is the system model that is used for the partitioning.
-    # We only want to extract the formatting and mounting script, we should not take MORE than that with us.
-    baseModules = defaultSystem.partitioningModules ++ [
-      {
-        securix = {
-          self.mainDisk = "/dev/nvme0n1";
-          filesystems.layout = "office_v1";
-        };
-      }
-    ];
-    extraInstallerModules = [
-      "${sources.snowboot}/nix-modules/fetch-system-from-binary-cache.nix"
-      {
-        boot = {
-          initrd = {
-            availableKernelModules = [
-              "cdc_ncm"
-              "virtio-pci"
-              "virtio-net"
-            ];
-            systemd.enable = true;
-          };
-          snowboot.fetch-system-from-binary-cache.enable = true;
-        };
-        # Use mDNS here instead.
-        nix.settings.substituters = lib.mkForce [ "http://${netbootIP}:8000?trusted=1" ];
-        fileSystems."/" = {
-          fsType = "tmpfs";
-          device = "tmpfs";
-          options = [ "mode=0755" ];
-        };
-
-        networking.hostName = "netboot-installer-v1";
-        environment.systemPackages = [
-          (pkgs.writers.writePython3Bin "nixos-installer" {
-            flakeIgnore = [
-              "E501"
-              "E302"
-              "E305"
-              "E124"
-              "E265"
-              "E303"
-            ];
-          } ./pkgs/nixos-installer/installer.py)
-        ];
-      }
-    ];
-    # NOTE: `unsafeDiscardStringContext` is used here to avoid to bring with us the full default system toplevel.
-    # On a netboot system, you live in RAM and if your default system contains a bunch of things, you can saturate the RAM during the installation.
-    # This is not a problem on a USB stick.
-    installScript = ''
-      nixos-installer --toplevel-registry-uri http://${netbootIP}:8000/snowboot/toplevel/toplevels --default-toplevel ${builtins.unsafeDiscardStringContext defaultSystem.system.toplevel}
-    '';
-  };
-
-  usb-installer = securix.lib.buildUSBInstallerISO {
-    # We can include the whole default system in the USB stick to accelerate installation.
-    inherit (defaultSystem) modules;
-
-    extraInstallerModules = [
-      {
-        networking.hostName = "generic-installer-v1";
-        environment.systemPackages = [
-          (pkgs.writers.writePython3Bin "nixos-installer" {
-            flakeIgnore = [
-              "E501"
-              "E302"
-              "E305"
-              "E124"
-              "E265"
-              "E303"
-            ];
-          } ./pkgs/nixos-installer/installer.py)
-        ];
-      }
-    ];
-    installScript = ''
-      nixos-installer --default-toplevel ${defaultSystem.system.toplevel}
-    '';
-  };
-
-  # { <serial number1>, <serial number2>, ... }
-  terminals = mapAttrs (
-    serial:
-    { machineModule, userModules }:
-    securix.lib.mkTerminal {
-      name = serial;
-      userSpecificModule = { };
-      vpnProfiles = { };
-      modules = [
-        machineModule
-        ./common
-      ]
-      ++ userModules;
-    }
-  ) (securix.lib.readInventory2 { dir = ./inventory; });
-
-  # Toplevel registry:
-  # iterate over all terminals and perform: $serial  $toplevel generation.
-  # This builds ALL system configurations.
-  toplevelRegistry =
-    let
-      toplevels = map (serial: "${serial} ${terminals.${serial}.system.config.system.build.toplevel}") (
-        attrNames terminals
-      );
-    in
-    pkgs.writeText "toplevels" (concatStringsSep "\n" toplevels);
-
-  shell = pkgs.mkShell {
-    # Inspired by DGNum's infrastructure.
-    shellHook = builtins.concatStringsSep "\n" [
-      git-checks.shellHook
-      reuse.shellHook
-      workflows.shellHook
-      "unset shellHook # do not contaminate nested shells"
-    ];
-    preferLocalBuild = true;
-    packages = [
-      pkgs.treefmt
-      pkgs.nixfmt-rfc-style
-      pkgs.npins
-      pkgs.reuse
-    ];
-  };
+{
+  inherit (installers) net-installer usb-installer;
+  inherit (registry) terminals toplevelRegistry;
+  inherit (dev) shell;
 }
