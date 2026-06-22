@@ -12,4 +12,6 @@
       "heloise"
     ];
   };
+
+  bureautix.developer.enable = true;
 }

@@ -37,6 +37,9 @@
 
     # Laptop: power optimizations, etc.
     ./laptop.nix
+
+    # Allow the developer profile which is disabled by default.
+    ../developer
   ];
 
   securix.self.machine = {
