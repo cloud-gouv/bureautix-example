@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-{ lib, ... }:
+{ pkgs, lib, ... }:
 {
   imports = [
     # Filesystem configuration
@@ -62,5 +62,12 @@
   securix.graphical-interface = {
     variant = "kde";
     terminalVariant = "kitty";
+
+    kde = {
+      lookAndFeelPackages = [
+        pkgs.securixThemes.example
+      ];
+      defaultLookAndFeel = "org.acmecorp.example";
+    };
   };
 }

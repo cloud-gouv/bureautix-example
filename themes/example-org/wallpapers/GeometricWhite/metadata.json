@@ -1,0 +1,9 @@
+{
+  "KPlugin": {
+    "Authors": [ { "Email": "", "Name": "Bernard Hermant" } ],
+    "Website": "...",
+    "Id": "GeometricWhite",
+    "License": "",
+    "Name": "Geometric White"
+  }
+}
