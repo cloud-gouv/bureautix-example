@@ -123,6 +123,12 @@ let
       )
     ) (builtins.readDir ./workflows);
   };
+
+  preprovisionOptions = {
+    secureBoot = "self-contained";
+    tpm2HostKeys = true;
+    ageHostKeys = true;
+  };
 in
 rec {
   # Generic installer for any laptops.
@@ -140,6 +146,34 @@ rec {
         };
       }
     ];
+
+    inherit preprovisionOptions;
+    postInstallScript = ''
+      # We will submit to a Grist form various information about the system to automatically fill the inventory after installation.
+      # An admin will validate or throwaway the registration.
+      (
+        box_message "Submitting data about this installation to the inventory system..."
+        GRIST_FORM_URI="https://grist.lahfa.xyz/o/lahfa/api/s/duF8dgSMH3PiHRdnEJqKHn/tables/Test_inventory/records?utm_source=bureautix-install"
+        SERIAL_NUMBER=$(${pkgs.dmidecode}/bin/dmidecode -s system-serial-number)
+        AGE_PUBLIC_KEY=$(cat /mnt/etc/ssh/ssh_host_ed25519_key.pub)
+        TPM2_PUBLIC_KEY=$(cat /mnt/etc/ssh/ssh_tpm_host_ecdsa_key.pub)
+        json_data='{
+          "records": [{
+            "fields": {
+              "Serial_number": "'"$SERIAL_NUMBER"'",
+              "Age_public_key": "'"$AGE_PUBLIC_KEY"'",
+              "TPM2_public_key": "'"$TPM2_PUBLIC_KEY"'"
+            }
+          }]
+        }'
+
+        curl -X POST \
+          "$GRIST_FORM_URI" \
+          -H "Content-Type: application/json" \
+          -d "$json_data"
+        log_info "Submitted data about this installation to the inventory system."
+      )
+    '';
     extraInstallerModules = [
       "${sources.snowboot}/nix-modules/fetch-system-from-binary-cache.nix"
       {
