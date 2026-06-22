@@ -212,20 +212,30 @@ rec {
   };
 
   # { <serial number1>, <serial number2>, ... }
-  terminals = mapAttrs (
-    serial:
-    { machineModule, userModules }:
-    securix.lib.mkTerminal {
-      name = serial;
-      userSpecificModule = { };
-      vpnProfiles = { };
-      modules = [
-        machineModule
-        ./common
-      ]
-      ++ userModules;
-    }
-  ) (securix.lib.readInventory2 { dir = ./inventory; });
+  terminals =
+    mapAttrs
+      (
+        serial:
+        { machineModule, userModules }:
+        securix.lib.mkTerminal {
+          name = serial;
+          userSpecificModule = { };
+          vpnProfiles = { };
+          modules = [
+            machineModule
+            ./common
+          ]
+          ++ userModules;
+        }
+      )
+      (
+        securix.lib.readInventory2 {
+          dir = ./inventory;
+          teams = {
+            engineering = [ ./developer ];
+          };
+        }
+      );
 
   # Toplevel registry:
   # iterate over all terminals and perform: $serial  $toplevel generation.
