@@ -60,7 +60,7 @@
   # By default, Securix supports mostly KDE Plasma 6.
   # You can extend here to add more graphical interfaces.
   securix.graphical-interface = {
-    variant = "kde";
+    variant = lib.mkDefault "kde";
     terminalVariant = "kitty";
   };
 }
