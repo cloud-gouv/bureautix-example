@@ -21,13 +21,15 @@
       }
     ]
     # Inspired by DGNum's way of checking for pre-commit hooks.
-    ++ (builtins.map
+    ++ (map
       (stage: {
         name = "Check stage ${stage}";
-        run = nix-actions.lib.nix-shell {
-          script = "pre-commit run --all-files --hook-stage ${stage} --show-diff-on-failure";
-          shell = "pre-commit";
-        };
+        run = ''
+          	  set -o pipefail
+          	  set -o nounset
+          	  set -o errexit
+          	  nix-shell --run 'pre-commit run --all-files --hook-stage ${stage} --show-diff-on-failure'
+          	'';
       })
       [
         "pre-commit"

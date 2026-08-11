@@ -9,11 +9,13 @@ jobs:
       uses: 
         samueldr/lix-gha-installer-action@8c7f8a4b0f594ab8a6dc3bf71c217587bbc756b5
     - name: Check stage pre-commit
-      run: "nix-shell -A pre-commit --run 'set -o pipefail\nset -o nounset\nset -o
-        errexit\npre-commit run --all-files --hook-stage pre-commit --show-diff-on-failure'"
+      run: "\t  set -o pipefail\n\t  set -o nounset\n\t  set -o errexit\n\t  nix-shell
+        --run 'pre-commit run --all-files --hook-stage pre-commit --show-diff-on-failure'\n\
+        \t"
     - name: Check stage pre-push
-      run: "nix-shell -A pre-commit --run 'set -o pipefail\nset -o nounset\nset -o
-        errexit\npre-commit run --all-files --hook-stage pre-push --show-diff-on-failure'"
+      run: "\t  set -o pipefail\n\t  set -o nounset\n\t  set -o errexit\n\t  nix-shell
+        --run 'pre-commit run --all-files --hook-stage pre-push --show-diff-on-failure'\n\
+        \t"
 name: Run pre-commit on all files
 on:
 - push
