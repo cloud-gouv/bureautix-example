@@ -9,4 +9,7 @@
     appId = "pam://bureautix-exemple";
     origin = "pam://bureautix-exemple";
   };
+
+  # Accounts authenticate with their FIDO2 key, none of them has a password.
+  users.allowNoPasswordLogin = true;
 }

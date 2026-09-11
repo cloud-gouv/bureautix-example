@@ -8,6 +8,6 @@
     keys = [ ];
   };
 
-  # password is `nixos`
-  users.users.root.hashedPassword = "$y$j9T$1aoCSeVE6c0STJ0MLSVjK/$jNxZFMVj..HMf5/l14b6I4VufioAr/cNp29ea1S4C4D";
+  # root has no password, remote access goes through the SSH keys above.
+  users.users.root.hashedPassword = "!";
 }

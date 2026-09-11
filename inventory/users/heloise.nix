@@ -7,8 +7,8 @@
   securix.self.user = {
     email = "heloise@example.com";
     username = "heloise";
-    # password is `test`
-    hashedPassword = "$y$j9T$zk4xGLyshz7RzqnMX6M8O0$AybRelILMkQSWcQZV4s.ykRNi/UlgaCUaDwdee0n7N2";
+    # Generated with pamu2fcfg --appid pam://bureautix-exemple --origin pam://bureautix-exemple --nouser
+    u2f_keys = [ ];
     defaultLoginShell = pkgs.zsh;
   };
 }
