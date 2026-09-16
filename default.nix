@@ -125,6 +125,20 @@ let
   };
 in
 rec {
+  # Throwaway QEMU VM to test Bureautix, see `vm/README.md`.
+  # Run with: `nix-build -A vm` then `./result/bin/run-*-vm`.
+  vmTerminal = securix.lib.mkTerminal {
+    name = "vm-test";
+    edition = defaultEdition;
+    userSpecificModule = { };
+    vpnProfiles = { };
+    modules = [
+      ./vm/vm.nix
+    ];
+  };
+
+  vm = vmTerminal.system.config.system.build.vm;
+
   # Generic installer for any laptops.
   # There's a netboot installer, see `netboot/README.md` for documentation.
   # There's an USB generic installer that will install a default system.
