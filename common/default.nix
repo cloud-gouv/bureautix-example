@@ -37,6 +37,9 @@
 
     # Laptop: power optimizations, etc.
     ./laptop.nix
+
+    # SSH and boot loader hardening.
+    ./hardening.nix
   ];
 
   securix.self.machine = {
@@ -52,7 +55,7 @@
 
   # It's mostly meant for French audiences, you can adapt
   # Better: you can let users override it!
-  i18n.defaultLocale = lib.mkDefault "fr_FR.UTF-8";
+  i18n.defaultLocale = lib.mkOverride 900 "fr_FR.UTF-8";
   console = {
     keyMap = lib.mkDefault "fr";
   };

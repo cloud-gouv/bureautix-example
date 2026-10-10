@@ -55,9 +55,9 @@
     },
     "nixpkgs": {
       "type": "Channel",
-      "name": "nixpkgs-unstable",
-      "url": "https://releases.nixos.org/nixpkgs/nixpkgs-25.11pre877036.c12c63cd6c5e/nixexprs.tar.xz",
-      "hash": "0nwxsz085l794w864zsh7wdy2acr841qhvq4hhh22hh82dljs45y"
+      "name": "nixos-26.05",
+      "url": "https://releases.nixos.org/nixos/26.05/nixos-26.05.1947.a0374025a863/nixexprs.tar.xz",
+      "hash": "13acdfkryy995aqwjibkfp9rsysaz0jjnf994h21d4mmz46m311y"
     },
     "securix": {
       "type": "Git",
@@ -68,9 +68,9 @@
       },
       "branch": "main",
       "submodules": false,
-      "revision": "f7b4cd1535886edb6760e0b7c3d17fef4b806cf6",
-      "url": "https://github.com/cloud-gouv/securix/archive/f7b4cd1535886edb6760e0b7c3d17fef4b806cf6.tar.gz",
-      "hash": "14mym9npvc58ra6hcncdzrqax2yf4afqiql9a1mc90lr2b137gfy"
+      "revision": "c4701a544c37b4453c7f5617cb0eae109ee4aeb7",
+      "url": "https://github.com/cloud-gouv/securix/archive/c4701a544c37b4453c7f5617cb0eae109ee4aeb7.tar.gz",
+      "hash": "1i1ydlcsam23kyxmwnrq7dxwzd2fpnvwvw28mpasqln26ldbcyjk"
     },
     "snowboot": {
       "type": "Git",

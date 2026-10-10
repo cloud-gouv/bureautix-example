@@ -135,9 +135,13 @@ rec {
     baseModules = defaultSystem.partitioningModules ++ [
       {
         securix = {
+          self.edition = defaultEdition;
           self.mainDisk = "/dev/nvme0n1";
           filesystems.layout = "office_v1";
         };
+        # Only the partitioning scripts are taken from this system, which
+        # has no machine of its own.
+        networking.hostName = "bureautix-netboot";
       }
     ];
     extraInstallerModules = [
