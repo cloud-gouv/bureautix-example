@@ -16,6 +16,9 @@ Like Sécurix, Bureautix retains [the Secure Boot properties of Sécurix](https:
 
 This example contains a kit for building your own office PC called "Bureautix" with an inventory, an installer, and office customizations. You can take it and add your own organizational customizations by cloning it and then making a private version.
 
+
+See [INSTALL.md](INSTALL.md) to install Bureautix on your machines.
+
 ## FAQ
 
 ### Why is there no centralized authentication via LDAP?
